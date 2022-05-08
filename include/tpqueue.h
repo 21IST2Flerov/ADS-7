@@ -5,87 +5,72 @@
 
 template<typename T>
 class TPQueue {
-private:
-    struct ITEM {
-        T value;
-        ITEM* prev, * next;
-    };
-    ITEM* head, * tail, * actual;
-    TPQueue::ITEM* create(const T& value) {
-        ITEM* item = new ITEM;
-        item->value = value;
-        item->next = nullptr;
-        item->prev = nullptr;
-        return item;
-    }
-
-public:
-    TPQueue() {
-        head = tail = actual = nullptr;
-    }
-    ~TPQueue() {
-        while (head)
-            pop();
-    }
-    T getNext() {
-        if (tail && head) {
-            if (!actual)
-                actual = head;
-            else if (actual->next)
-                actual = actual->next;
-            else
-                throw std::string("Beyond border");
-            return actual->value;
-        }
-        else {
-            throw std::string("Beyond border");
-        }
-    }
-    T pop() {
-        if (tail && head) {
-            ITEM* temp = head->next;
-            if (temp)
-                temp->prev = nullptr;
-            T value = head->value;
-            delete head;
-            head = temp;
-            if (!head)
-                tail = nullptr;
-            return value;
-        }
-        else {
-            throw std::string("Out of limit!");
-        }
-    }
-    void push(const T& value) {
-        ITEM* temp = head;
-        ITEM* item = create(value);
-        while (temp && temp->value.prior >= value.prior)
-            temp = temp->next;
-        if (!temp && head) {
-            tail->next = item;
-            item->prev = tail;
-            tail = item;
-        }
-        else if (!temp && !head) {
-            head = tail = item;
-        }
-        else if (!temp->prev) {
-            head->prev = item;
-            item->next = head;
-            head = item;
-        }
-        else {
-            temp->prev->next = item;
-            item->prev = temp->prev;
-            item->next = temp;
-            temp->prev = item;
-        }
-    }
+ public:
+      TPQueue(): head(nullptr), tail(nullptr) {}
+      void push(const T&);
+      T pop();
+ private:
+      struct ITEM {
+          T value;
+          ITEM *next;
+          ITEM *prew;
+      };
+      TPQueue:: ITEM *create(const T&);
+      ITEM *head;
+      ITEM *tail;
 };
-
+template<typename T>
+typename TPQueue<T>::ITEM *TPQueue<T>::create(const T& value) {
+  ITEM * temp = new ITEM;
+  temp->value = value;
+  temp->next = nullptr;
+  temp->prew = nullptr;
+  return temp;
+}
+template<typename T>
+void TPQueue <T>::push(const T& data) {
+  ITEM *temp = head;
+  ITEM* item = create(data);
+  while (temp && temp->value.prior >= data.prior) {
+    temp = temp->next;
+  }
+  if (!temp && head) {
+    tail ->next = item;
+    item->prew = tail;
+    tail = item;
+  } else if (!temp && !head) {
+    head = tail = item;
+  } else if (!temp->prew) {
+    head->prew = item;
+    item->next = head;
+    head = item;
+  } else {
+    temp->prew->next = item;
+    item->prew = temp->prew;
+    item->next = temp;
+    temp->prew = item;
+  }
+}
+template<typename T>
+T TPQueue<T>::pop() {
+  if (head && tail) {
+    ITEM* temp = head->next;
+    if (temp) {
+      temp->prew = nullptr;
+    }
+    T data = head->value;
+    delete head;
+    head = temp;
+    if (!head) {
+      tail = nullptr;
+    }
+    return data;
+  } else {
+    throw std::string("Is Empty!");
+  }
+}
 struct SYM {
-    char ch;
-    int prior;
+  char ch;
+  int prior;
 };
 #endif  // INCLUDE_TPQUEUE_H_
